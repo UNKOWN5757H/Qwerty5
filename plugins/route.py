@@ -2,12 +2,12 @@ import re, math, logging, secrets, mimetypes, time
 from info import *
 from aiohttp import web
 from aiohttp.http_exceptions import BadStatusLine
-from TechVJ.bot import multi_clients, work_loads, TechVJBot
-from TechVJ.server.exceptions import FIleNotFound, InvalidHash
-from TechVJ import StartTime, __version__
-from TechVJ.util.custom_dl import ByteStreamer
-from TechVJ.util.time_format import get_readable_time
-from TechVJ.util.render_template import render_page
+from Qwerty.bot import multi_clients, work_loads, QwertyBot
+from Qwerty.server.exceptions import FIleNotFound, InvalidHash
+from Qwerty import StartTime, __version__
+from Qwerty.util.custom_dl import ByteStreamer
+from Qwerty.util.time_format import get_readable_time
+from Qwerty.util.render_template import render_page
 
 routes = web.RouteTableDef()
 
@@ -154,3 +154,4 @@ async def media_streamer(request: web.Request, id: int, secure_hash: str):
             "Accept-Ranges": "bytes",
         },
     )
+
