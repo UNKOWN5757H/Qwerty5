@@ -16,11 +16,10 @@ from Script import script
 from datetime import date, datetime 
 # from aiohttp import web - Removed Stream
 # from plugins import web_server - Removed Stream
-from plugins.clone import restart_bots
 
-from TechVJ.bot import TechVJBot
+from Qwerty.bot import QwertyBot
 # from TechVJ.util.keepalive import ping_server - Removed Stream
-from TechVJ.bot.clients import initialize_clients
+from Qwerty.bot.clients import initialize_clients
 
 ppath = "plugins/*.py"
 files = glob.glob(ppath)
@@ -33,9 +32,9 @@ async def start():
     print('Initalizing Your Bot')
     
     # --- FIX: Start the bot inside the async function ---
-    await TechVJBot.start()
+    await QwertyBot.start()
     
-    bot_info = await TechVJBot.get_me()
+    bot_info = await QwertyBot.get_me()
     await initialize_clients()
     for name in files:
         with open(name) as a:
@@ -47,7 +46,7 @@ async def start():
             load = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(load)
             sys.modules["plugins." + plugin_name] = load
-            print("Tech VJ Imported => " + plugin_name)
+            print("Qwerty Imported => " + plugin_name)
             
     # --- REMOVED: ping_server() as it's part of the stream/web feature ---
     # if ON_HEROKU:
@@ -68,14 +67,14 @@ async def start():
     time = now.strftime("%H:%M:%S %p")
     
     try:
-        await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
+        await QwertyBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
     except Exception as e:
         print(f"Error sending restart message to LOG_CHANNEL: {e}")
         print("Make Your Bot Admin In Log Channel With Full Rights")
         
     for ch in CHANNELS:
         try:
-            k = await TechVJBot.send_message(chat_id=ch, text="**Bot Restarted**")
+            k = await QwertyBot.send_message(chat_id=ch, text="**Bot Restarted**")
             await k.delete()
         except Exception as e:
             print(f"Error sending restart message to CHANNELS ({ch}): {e}")
@@ -83,7 +82,7 @@ async def start():
             
     if AUTH_CHANNEL:
         try:
-            k = await TechVJBot.send_message(chat_id=AUTH_CHANNEL, text="**Bot Restarted**")
+            k = await QwertyBot.send_message(chat_id=AUTH_CHANNEL, text="**Bot Restarted**")
             await k.delete()
         except Exception as e:
             print(f"Error sending restart message to AUTH_CHANNEL: {e}")
@@ -109,3 +108,4 @@ if __name__ == '__main__':
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
+
