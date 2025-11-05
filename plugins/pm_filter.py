@@ -27,8 +27,6 @@ logger.setLevel(logging.ERROR)
 lock = asyncio.Lock()
 
 # Global dictionaries for state management
-# WARNING: These are in-memory and will be lost on restart.
-# Consider using a database (like Redis) for persistent state.
 FRESH = {}
 SPELL_CHECK = {}
 
@@ -37,14 +35,12 @@ SPELL_CHECK = {}
 async def edit_menu_helper(query: CallbackQuery, text: str, reply_markup: InlineKeyboardMarkup, photo: str = None):
     """
     Helper function to edit a message with new text, markup, and optionally a new photo.
-    This reduces repetition in the main callback handler.
+    FIXED: Replaced query.client.edit_message_media with query.message.edit_media
     """
     try:
         if photo:
-            await query.client.edit_message_media(
-                query.message.chat.id,
-                query.message.id,
-                InputMediaPhoto(random.choice(PICS) if photo == "random" else photo)
+            await query.message.edit_media(
+                media=InputMediaPhoto(random.choice(PICS) if photo == "random" else photo)
             )
         await query.message.edit_text(
             text=text,
@@ -57,13 +53,12 @@ async def edit_menu_helper(query: CallbackQuery, text: str, reply_markup: Inline
     except Exception as e:
         logger.exception(f"Error in edit_menu_helper: {e}")
 
+
 def get_settings_buttons(settings: dict, grp_id: str) -> list:
     """
     Generates the list of buttons for the settings menu.
-    This function is used by opnsetgrp, opnsetpm, and setgs to avoid code duplication.
     """
     grp_id_str = str(grp_id)
-    # Use .get() to provide default values and prevent KeyErrors
     buttons = [
         [
             InlineKeyboardButton('Rᴇsᴜʟᴛ Pᴀɢᴇ', callback_data=f'setgs#button#{settings.get("button", True)}#{grp_id_str}'),
@@ -115,6 +110,7 @@ async def get_stats_text() -> str:
     totalsec = sec_col.count_documents({})
     
     try:
+        # --- FIX: Renamed vjdb to Qwertydb ---
         stats = Qwertydb.command('dbStats')
         used_dbSize = (stats['dataSize'] + stats['indexSize']) / (1024 * 1024)
         free_dbSize = 512 - used_dbSize  # Assuming 512MB total
@@ -375,26 +371,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
     if data == "close_data":
         await query.message.delete()
         
-    elif data == "get_trail":
-        user_id = query.from_user.id
-        free_trial_status = await db.get_free_trial_status(user_id)
-        if not free_trial_status:            
-            await db.give_free_trail(user_id)
-            new_text = "**ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ 5 ᴍɪɴᴜᴛᴇs ꜰʀᴏᴍ ɴᴏᴡ 😀\n\nआप अब से 5 मिनट के लिए निःशुल्क ट्रायल का उपयोग कर सकते हैं 😀**"        
-            await query.message.edit_text(text=new_text)
-        else:
-            new_text= "**🤣 you already used free now no more free trail. please buy subscription here are our 👉 /plans**"
-            await query.message.edit_text(text=new_text)
-            
-    elif data == "buy_premium":
-        btn = [[InlineKeyboardButton("✅sᴇɴᴅ ʏᴏᴜʀ ᴘᴀʏᴍᴇɴᴛ ʀᴇᴄᴇɪᴘᴛ ʜᴇʀᴇ ✅", url = OWNER_LINK)]]
-        btn.append([InlineKeyboardButton("⚠️ᴄʟᴏsᴇ / ᴅᴇʟᴇᴛᴇ⚠️", callback_data="close_data")])
-        reply_markup = InlineKeyboardMarkup(btn)
-        await query.message.reply_photo(
-            photo=PAYMENT_QR,
-            caption=PAYMENT_TEXT,
-            reply_markup=reply_markup
-        )
+    # --- REMOVED 'get_trail' BLOCK ---
+    
+    # --- REMOVED 'buy_premium' BLOCK ---
         
     elif data == "gfiltersdeleteallconfirm":
         await del_allg(query.message, 'gfilters')
@@ -501,7 +480,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
         if mkact:
             await query.message.edit_text(
-                f"Cᴏɴɴᴇᴄᴛᴇᴅ ᴛᴏ **{title}**",
+                f"CᴏɴɴᴇᴄᴛED ᴛᴏ **{title}**",
                 parse_mode=enums.ParseMode.MARKDOWN
             )
         else:
@@ -521,7 +500,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
         if mkinact:
             await query.message.edit_text(
-                f"Dɪsᴄᴏɴɴᴇᴄᴛᴇᴅ ғʀᴏᴍ **{title}**",
+                f"DɪsᴄᴏɴɴᴇᴄᴛED ғʀᴏᴍ **{title}**",
                 parse_mode=enums.ParseMode.MARKDOWN
             )
         else:
@@ -621,11 +600,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
         settings = await get_settings(query.message.chat.id)
         
         try:
-            if settings.get('is_shortlink', False) and not await db.has_premium_access(query.from_user.id):
+            # --- FIX: Removed has_premium_access check ---
+            if settings.get('is_shortlink', False):
                 temp.SHORT[clicked] = query.message.chat.id
                 await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=short_{file_id}")
             else:
-                # Premium users or shortlink disabled
+                # No shortlink
                 await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={ident}_{file_id}")
         except UserIsBlocked:
             await query.answer('Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴍᴀʜɴ !', show_alert=True)
@@ -641,7 +621,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
         pre = 'allfilesp' if settings.get('file_secure', False) else 'allfiles'
         
         try:
-            if settings.get('is_shortlink', False) and not await db.has_premium_access(query.from_user.id):
+            # --- FIX: Removed has_premium_access check ---
+            if settings.get('is_shortlink', False):
                 await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=sendfiles1_{key}")
             else:
                 await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={pre}_{key}")
@@ -679,8 +660,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer("An error occurred. Maybe I'm not an admin?", show_alert=True)
    
     elif data.startswith("del"):
-        # This handler seems redundant, it just generates a 'file_' start link
-        # which is what the 'file' handler does.
         ident, file_id = data.split("#")
         await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start=file_{file_id}")
     
@@ -834,7 +813,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         user = await client.get_users(from_user)
         notify_text = f"<b>Hᴇʏ {user.mention}, Sᴏʀʀʏ Yᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ ɪs ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ. Sᴏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs ᴄᴀɴ'ᴛ ᴜᴘʟᴏᴀᴅ ɪᴛ.</b>"
         btn2 = [[
-                 InlineKeyboardButton('Jᴏɪɴ Cʜᴀɴɴᴇʟ', url=link.invite_link),
+                 InlineKeyboardButton('Jᴏɪɴ Cʜᴀɴɴᴇʟ', url=CHNL_LNK), # Using CHNL_LNK from info
                  InlineKeyboardButton("Vɪᴇᴡ Sᴛᴀᴛᴜs", url=f"{query.message.link}")
                ]]
         try:
@@ -857,10 +836,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
         user = await client.get_users(from_user)
         notify_text = f"<b>Hᴇʏ {user.mention}, Yᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ ʜᴀs ʙᴇᴇɴ ᴜᴘʟᴏᴀᴅᴇᴅ ʙʏ ᴏᴜʀ ᴍᴏᴅᴇʀᴀᴛᴏʀs. Kɪɴᴅʟʏ sᴇᴀʀᴄʜ ɪɴ ᴏᴜʀ Gʀᴏᴜᴘ.</b>"
         btn2 = [[
-                 InlineKeyboardButton('Jᴏɪɴ Cʜᴀɴɴᴇʟ', url=link.invite_link),
+                 InlineKeyboardButton('Jᴏɪɴ Cʜᴀɴɴᴇʟ', url=CHNL_LNK),
                  InlineKeyboardButton("Vɪᴇᴡ Sᴛᴀᴛᴜs", url=f"{query.message.link}")
                ],[
-                 InlineKeyboardButton("Rᴇᴏ̨ᴜᴇsᴛ Gʀᴏᴜᴘ Lɪɴᴋ", url="https://t.me/Sandalwood_Kannada_Group")
+                 InlineKeyboardButton("Rᴇᴏ̨ᴜᴇsᴛ Gʀᴏᴜᴘ Lɪɴᴋ", url=GRP_LNK) # Using GRP_LNK from info
                ]]
         try:
             await client.send_message(chat_id=int(from_user), text=notify_text, reply_markup=InlineKeyboardMarkup(btn2))
@@ -882,10 +861,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
         user = await client.get_users(from_user)
         notify_text = f"<b>Hᴇʏ {user.mention}, Yᴏᴜʀ ʀᴇᴏ̨ᴜᴇsᴛ ɪs ᴀʟʀᴇᴀᴅʏ ᴀᴠᴀɪʟᴀʙʟᴇ ᴏɴ ᴏᴜʀ ʙᴏᴛ's ᴅᴀᴛᴀʙᴀsᴇ. Kɪɴᴅʟʏ sᴇᴀʀᴄʜ ɪɴ ᴏᴜʀ Gʀᴏᴜᴘ.</b>"
         btn2 = [[
-                 InlineKeyboardButton('Jᴏɪɴ Cʜᴀɴɴᴇʟ', url=link.invite_link),
+                 InlineKeyboardButton('Jᴏɪɴ Cʜᴀɴɴᴇʟ', url=CHNL_LNK),
                  InlineKeyboardButton("Vɪᴇᴡ Sᴛᴀᴛᴜs", url=f"{query.message.link}")
                ],[
-                 InlineKeyboardButton("Rᴇᴏ̨ᴜᴇsᴛ Gʀᴏᴜᴘ Lɪɴᴋ", url="https://t.me/Sandalwood_Kannada_Group")
+                 InlineKeyboardButton("Rᴇᴏ̨ᴜᴇsᴛ Gʀᴏᴜᴘ Lɪɴᴋ", url=GRP_LNK)
                ]]
         try:
             await client.send_message(chat_id=int(from_user), text=notify_text, reply_markup=InlineKeyboardMarkup(btn2))
@@ -925,8 +904,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
             InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
         ]]
-        if PREMIUM_AND_REFERAL_MODE:
-            buttons.append([InlineKeyboardButton('ᴘʀᴇᴍɪᴜᴍ ᴀɴᴅ ʀᴇғᴇʀʀᴀʟ', callback_data='subscription')])
+        # --- REMOVED Premium/Referral Button ---
         buttons.append([InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)])
         if CLONE_MODE:
             buttons.append([InlineKeyboardButton('ᴄʀᴇᴀᴛᴇ ᴏᴡɴ ᴄʟᴏɴᴇ ʙᴏᴛ', callback_data='clone')])
@@ -1002,15 +980,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         )
         await query.answer()
 
-    elif data == "subscription":
-        buttons = [[InlineKeyboardButton('⇚Back', callback_data='start')]]
-        await edit_menu_helper(
-            query,
-            text=script.SUBSCRIPTION_TXT.format(REFERAL_PREMEIUM_TIME, temp.U_NAME, query.from_user.id, REFERAL_COUNT),
-            reply_markup=InlineKeyboardMarkup(buttons),
-            photo="random"
-        )
-        await query.answer()
+    # --- REMOVED 'subscription' BLOCK ---
 
     elif data == "manuelfilter":
         buttons = [[
@@ -1069,7 +1039,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         await query.answer()
     
     elif data == "store_file":
-        buttons = [[InlineKeyboardButton('⟸ Bᴀᴄᴋ', callback_data='help')]]
+        buttons = [[InlineKeyboardButton('⟸ BᴀᴄK', callback_data='help')]]
         await edit_menu_helper(
             query,
             text=script.FILE_STORE_TXT,
@@ -1600,6 +1570,3 @@ async def global_filters(client, message, text=False):
             return True # Global filter was found and handled
 
     return False # No global filter found
-
-
-
