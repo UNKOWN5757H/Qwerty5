@@ -20,7 +20,7 @@ from database.filters_mdb import del_all, find_filter, get_filters
 from database.connections_mdb import mydb, active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
 from database.gfilters_mdb import find_gfilter, get_gfilters, del_allg
 from urllib.parse import quote_plus
-from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
+from Qwerty.util.file_properties import get_name, get_hash, get_media_file_size
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
@@ -1400,14 +1400,14 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
 
     SPELL_CHECK[mv_id] = movielist
     
-    if AI_SPELL_CHECK and vj_search:
+    if AI_SPELL_CHECK and Qwerty_search:
         vj_search_new = False
         await reply_msg.edit_text("<b><i>I Am Trying To Find Your Movie With Your Wrong Spelling.</i></b>")
         
         movienamelist = [movie.get('title') for movie in movies if movie.get('title')]
-        for techvj in movienamelist:
-            if mv_rqst.capitalize().startswith(techvj[0]):
-                await auto_filter(client, techvj, msg, reply_msg, vj_search_new)
+        for qwerty in movienamelist:
+            if mv_rqst.capitalize().startswith(qwerty[0]):
+                await auto_filter(client, qwerty, msg, reply_msg, vj_search_new)
                 return # Found a match
         
         # If AI check fails, fall through to showing buttons
@@ -1600,3 +1600,4 @@ async def global_filters(client, message, text=False):
             return True # Global filter was found and handled
 
     return False # No global filter found
+
