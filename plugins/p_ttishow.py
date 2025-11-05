@@ -7,7 +7,7 @@ from Script import script
 from pyrogram import Client, filters, enums
 from pyrogram.errors import ChatAdminRequired, FloodWait
 from pyrogram.types import *
-from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files, db as vjdb, sec_db
+from database.ia_filterdb import col, sec_col, get_file_details, unpack_new_file_id, get_bad_files, db as Qwertydb, sec_db
 from database.users_chats_db import db, delete_all_referal_users, get_referal_users_count, get_referal_all_users, referal_add_user
 from database.join_reqs import JoinReqs
 from info import *
@@ -164,7 +164,7 @@ async def get_ststs(bot, message):
         total_users = await db.total_users_count()
         totl_chats = await db.total_chat_count()
         filesp = col.count_documents({})
-        stats = vjdb.command('dbStats')
+        stats = Qwertydb.command('dbStats')
         used_dbSize = (stats['dataSize']/(1024*1024))+(stats['indexSize']/(1024*1024))
         free_dbSize = 512-used_dbSize
         
@@ -296,3 +296,4 @@ async def list_chats(bot, message):
         with open('chats.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('chats.txt', caption="List Of Chats")
+
