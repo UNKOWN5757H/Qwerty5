@@ -15,7 +15,7 @@ from utils import (
     get_shortlink, get_tutorial, send_all, get_cap
 )
 from database.users_chats_db import db
-from database.ia_filterdb import col, sec_col, db as vjdb, sec_db, get_file_details, get_search_results, get_bad_files
+from database.ia_filterdb import col, sec_col, db as Qwertydb, sec_db, get_file_details, get_search_results, get_bad_files
 from database.filters_mdb import del_all, find_filter, get_filters
 from database.connections_mdb import mydb, active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
 from database.gfilters_mdb import find_gfilter, get_gfilters, del_allg
@@ -115,7 +115,7 @@ async def get_stats_text() -> str:
     totalsec = sec_col.count_documents({})
     
     try:
-        stats = vjdb.command('dbStats')
+        stats = Qwertydb.command('dbStats')
         used_dbSize = (stats['dataSize'] + stats['indexSize']) / (1024 * 1024)
         free_dbSize = 512 - used_dbSize  # Assuming 512MB total
     except Exception:
@@ -1353,7 +1353,7 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
         except Exception:
             pass # Message might have been deleted already
 
-async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
+async def advantage_spell_chok(client, name, msg, reply_msg, Qwerty_search):
     mv_id = msg.id
     mv_rqst = name
     reqstr1 = msg.from_user.id if msg.from_user else 0
@@ -1401,13 +1401,13 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
     SPELL_CHECK[mv_id] = movielist
     
     if AI_SPELL_CHECK and Qwerty_search:
-        vj_search_new = False
+        Qwerty_search_new = False
         await reply_msg.edit_text("<b><i>I Am Trying To Find Your Movie With Your Wrong Spelling.</i></b>")
         
         movienamelist = [movie.get('title') for movie in movies if movie.get('title')]
         for qwerty in movienamelist:
             if mv_rqst.capitalize().startswith(qwerty[0]):
-                await auto_filter(client, qwerty, msg, reply_msg, vj_search_new)
+                await auto_filter(client, qwerty, msg, reply_msg, Qwerty_search_new)
                 return # Found a match
         
         # If AI check fails, fall through to showing buttons
@@ -1600,4 +1600,5 @@ async def global_filters(client, message, text=False):
             return True # Global filter was found and handled
 
     return False # No global filter found
+
 
