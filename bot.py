@@ -18,12 +18,11 @@ from datetime import date, datetime
 # from plugins import web_server - Removed Stream
 
 from Qwerty.bot import QwertyBot
-# from TechVJ.util.keepalive import ping_server - Removed Stream
+# from Qwerty.util.keepalive import ping_server - Removed Stream
 from Qwerty.bot.clients import initialize_clients
 
 ppath = "plugins/*.py"
 files = glob.glob(ppath)
-# TechVJBot.start() - Error: Must be called inside async function
 loop = asyncio.get_event_loop()
 
 
@@ -55,8 +54,12 @@ async def start():
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
     temp.BANNED_CHATS = b_chats
-    me = await TechVJBot.get_me()
-    temp.BOT = TechVJBot
+    
+    # --- FIX: Renamed TechVJBot to QwertyBot ---
+    me = await QwertyBot.get_me()
+    temp.BOT = QwertyBot
+    # --- End Fix ---
+    
     temp.ME = me.id
     temp.U_NAME = me.username
     temp.B_NAME = me.first_name
@@ -108,4 +111,3 @@ if __name__ == '__main__':
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
-
