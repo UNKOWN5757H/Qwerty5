@@ -14,8 +14,10 @@ from utils import temp
 from typing import Union, Optional, AsyncGenerator
 from Script import script 
 from datetime import date, datetime 
-# from aiohttp import web - Removed Stream
-# from plugins import web_server - Removed Stream
+
+# --- FIX: Add web server imports back ---
+from aiohttp import web
+from plugins import web_server 
 
 from Qwerty.bot import QwertyBot
 # from Qwerty.util.keepalive import ping_server - Removed Stream
@@ -96,13 +98,13 @@ async def start():
         await restart_bots()
         print("Restarted All Clone Bots.")
         
-    # --- REMOVED: Web server setup ---
-    # app = web.AppRunner(await web_server())
-    # await app.setup()
-    # bind_address = "0.0.0.0"
-    # await web.TCPSite(app, bind_address, PORT).start()
+    # --- FIX: Add minimal web server back for health checks ---
+    app = web.AppRunner(await web_server())
+    await app.setup()
+    bind_address = "0.0.0.0"
+    await web.TCPSite(app, bind_address, PORT).start()
     
-    print("Bot Started Successfully!")
+    print(f"Bot Started Successfully! (Health check running on {bind_address}:{PORT})")
     await idle()
 
 
