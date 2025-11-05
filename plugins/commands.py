@@ -1,7 +1,3 @@
-# Don't Remove Credit @VJ_Bots
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
 import os, string, logging, random, asyncio, time, datetime, re, sys, json, base64
 from Script import script
 from pyrogram import Client, filters, enums
@@ -73,18 +69,6 @@ async def start(client, message):
             ],[
                 InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)
             ]]
-        if CLONE_MODE == True:
-            buttons.append([InlineKeyboardButton('ᴄʀᴇᴀᴛᴇ ᴏᴡɴ ᴄʟᴏɴᴇ ʙᴏᴛ', callback_data='clone')])
-        reply_markup = InlineKeyboardMarkup(buttons)
-        m=await message.reply_sticker("CAACAgUAAxkBAAEKVaxlCWGs1Ri6ti45xliLiUeweCnu4AACBAADwSQxMYnlHW4Ls8gQMAQ") 
-        await asyncio.sleep(1)
-        await m.delete()
-        await message.reply_photo(
-            photo=random.choice(PICS),
-            caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
         return
     
     if AUTH_CHANNEL and not await is_subscribed(client, message):
@@ -132,101 +116,7 @@ async def start(client, message):
             print(e)
             return await message.reply_text("something wrong with force subscribe.")
             
-    if len(message.command) == 2 and message.command[1] in ["subscribe", "error", "okay", "help"]:
-        if PREMIUM_AND_REFERAL_MODE == True:
-            buttons = [[
-                InlineKeyboardButton('⤬ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ⤬', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
-            ],[
-                InlineKeyboardButton('ᴇᴀʀɴ ᴍᴏɴᴇʏ', callback_data="shortlink_info"),
-                InlineKeyboardButton('ᴍᴏᴠɪᴇ ɢʀᴏᴜᴘ', url=GRP_LNK)
-            ],[
-                InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
-                InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
-            ],[
-                InlineKeyboardButton('ᴘʀᴇᴍɪᴜᴍ ᴀɴᴅ ʀᴇғᴇʀʀᴀʟ', callback_data='subscription')
-            ],[
-                InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)
-            ]]
-        else:
-            buttons = [[
-                InlineKeyboardButton('⤬ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ⤬', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
-            ],[
-                InlineKeyboardButton('ᴇᴀʀɴ ᴍᴏɴᴇʏ', callback_data="shortlink_info"),
-                InlineKeyboardButton('ᴍᴏᴠɪᴇ ɢʀᴏᴜᴘ', url=GRP_LNK)
-            ],[
-                InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
-                InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
-            ],[
-                InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)
-            ]]
-        if CLONE_MODE == True:
-            buttons.append([InlineKeyboardButton('ᴄʀᴇᴀᴛᴇ ᴏᴡɴ ᴄʟᴏɴᴇ ʙᴏᴛ', callback_data='clone')])
-        reply_markup = InlineKeyboardMarkup(buttons)      
-        await message.reply_photo(
-            photo=random.choice(PICS),
-            caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
-        return
-    data = message.command[1]
-    if data.split("-", 1)[0] == "VJ":
-        user_id = int(data.split("-", 1)[1])
-        vj = await referal_add_user(user_id, message.from_user.id)
-        if vj and PREMIUM_AND_REFERAL_MODE == True:
-            await message.reply(f"<b>You have joined using the referral link of user with ID {user_id}\n\nSend /start again to use the bot</b>")
-            num_referrals = await get_referal_users_count(user_id)
-            await client.send_message(chat_id = user_id, text = "<b>{} start the bot with your referral link\n\nTotal Referals - {}</b>".format(message.from_user.mention, num_referrals))
-            if num_referrals == REFERAL_COUNT:
-                time = REFERAL_PREMEIUM_TIME       
-                seconds = await get_seconds(time)
-                if seconds > 0:
-                    expiry_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-                    user_data = {"id": user_id, "expiry_time": expiry_time} 
-                    await db.update_user(user_data)  # Use the update_user method to update or insert user data
-                    await delete_all_referal_users(user_id)
-                    await client.send_message(chat_id = user_id, text = "<b>You Have Successfully Completed Total Referal.\n\nYou Added In Premium For {}</b>".format(REFERAL_PREMEIUM_TIME))
-                    return 
-        else:
-            if PREMIUM_AND_REFERAL_MODE == True:
-                buttons = [[
-                    InlineKeyboardButton('⤬ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ⤬', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
-                ],[
-                    InlineKeyboardButton('ᴇᴀʀɴ ᴍᴏɴᴇʏ', callback_data="shortlink_info"),
-                    InlineKeyboardButton('ᴍᴏᴠɪᴇ ɢʀᴏᴜᴘ', url=GRP_LNK)
-                ],[
-                    InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
-                    InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
-                ],[
-                    InlineKeyboardButton('ᴘʀᴇᴍɪᴜᴍ ᴀɴᴅ ʀᴇғᴇʀʀᴀʟ', callback_data='subscription')
-                ],[
-                    InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)
-                ]]
-            else:
-                buttons = [[
-                    InlineKeyboardButton('⤬ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ⤬', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
-                ],[
-                    InlineKeyboardButton('ᴇᴀʀɴ ᴍᴏɴᴇʏ', callback_data="shortlink_info"),
-                    InlineKeyboardButton('ᴍᴏᴠɪᴇ ɢʀᴏᴜᴘ', url=GRP_LNK)
-                ],[
-                    InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help'),
-                    InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
-                ],[
-                    InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)
-                ]]
-            if CLONE_MODE == True:
-                buttons.append([InlineKeyboardButton('ᴄʀᴇᴀᴛᴇ ᴏᴡɴ ᴄʟᴏɴᴇ ʙᴏᴛ', callback_data='clone')])
-            reply_markup = InlineKeyboardMarkup(buttons)
-            m=await message.reply_sticker("CAACAgUAAxkBAAEKVaxlCWGs1Ri6ti45xliLiUeweCnu4AACBAADwSQxMYnlHW4Ls8gQMAQ") 
-            await asyncio.sleep(1)
-            await m.delete()
-            await message.reply_photo(
-                photo=random.choice(PICS),
-                caption=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
-                reply_markup=reply_markup,
-                parse_mode=enums.ParseMode.HTML
-            )
-            return 
+    if len(message.command) == 2 and message.command[1] in ["subscribe", "error", "okay", "help"]
     try:
         pre, file_id = data.split('_', 1)
     except:
@@ -260,22 +150,6 @@ async def start(client, message):
             if f_caption is None:
                 f_caption = f"{title}"
             try:
-                if STREAM_MODE == True:
-                    log_msg = await client.send_cached_media(chat_id=LOG_CHANNEL, file_id=msg.get("file_id"))
-                    fileName = {quote_plus(get_name(log_msg))}
-                    stream = f"{URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
-                    download = f"{URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
-
-                if STREAM_MODE == True:
-                    button = [[
-                        InlineKeyboardButton("• ᴅᴏᴡɴʟᴏᴀᴅ •", url=download),
-                        InlineKeyboardButton('• ᴡᴀᴛᴄʜ •', url=stream)
-                    ],[
-                        InlineKeyboardButton("• ᴡᴀᴛᴄʜ ɪɴ ᴡᴇʙ ᴀᴘᴘ •", web_app=WebAppInfo(url=stream))
-                    ]]
-                    reply_markup = InlineKeyboardMarkup(button)
-                else:
-                    reply_markup = None
                     
                 msg = await client.send_cached_media(
                     chat_id=message.from_user.id,
@@ -332,22 +206,6 @@ async def start(client, message):
                     except:
                         f_caption = getattr(msg, 'caption', '')
                 file_id = file.file_id
-                if STREAM_MODE == True:
-                    log_msg = await client.send_cached_media(chat_id=LOG_CHANNEL, file_id=file_id)
-                    fileName = {quote_plus(get_name(log_msg))}
-                    stream = f"{URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
-                    download = f"{URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
- 
-                if STREAM_MODE == True:
-                    button = [[
-                        InlineKeyboardButton("• ᴅᴏᴡɴʟᴏᴀᴅ •", url=download),
-                        InlineKeyboardButton('• ᴡᴀᴛᴄʜ •', url=stream)
-                    ],[
-                        InlineKeyboardButton("• ᴡᴀᴛᴄʜ ɪɴ ᴡᴇʙ ᴀᴘᴘ •", web_app=WebAppInfo(url=stream))
-                    ]]
-                    reply_markup = InlineKeyboardMarkup(button)
-                else:
-                    reply_markup = None
                 try:
                     p = await msg.copy(message.chat.id, caption=f_caption, protect_content=True if protect == "/pbatch" else False, reply_markup=reply_markup)
                 except FloodWait as e:
@@ -1295,113 +1153,3 @@ async def fsub(client, message):
     await save_group_settings(grpid, 'fsub', fsub_ids)
     await message.reply_text(f"<b>Successfully set force channels for {title} to\n\n{channels}\n\nYou can remove it by /nofsub.</b>")
         
-
-@Client.on_message(filters.command("add_premium"))
-async def give_premium_cmd_handler(client, message):
-    if PREMIUM_AND_REFERAL_MODE == False:
-        return 
-    user_id = message.from_user.id
-    if user_id not in ADMINS:
-        await message.delete()
-        return
-    if len(message.command) == 3:
-        user_id = int(message.command[1])  # Convert the user_id to integer
-        time = message.command[2]        
-        seconds = await get_seconds(time)
-        if seconds > 0:
-            expiry_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-            user_data = {"id": user_id, "expiry_time": expiry_time} 
-            await db.update_user(user_data)  # Use the update_user method to update or insert user data
-            await message.reply_text("Premium access added to the user.")            
-            await client.send_message(
-                chat_id=user_id,
-                text=f"<b>ᴘʀᴇᴍɪᴜᴍ ᴀᴅᴅᴇᴅ ᴛᴏ ʏᴏᴜʀ ᴀᴄᴄᴏᴜɴᴛ ꜰᴏʀ {time} ᴇɴᴊᴏʏ 😀\n</b>",                
-            )
-        else:
-            await message.reply_text("Invalid time format. Please use '1day for days', '1hour for hours', or '1min for minutes', or '1month for months' or '1year for year'")
-    else:
-        await message.reply_text("<b>Usage: /add_premium user_id time \n\nExample /add_premium 1252789 10day \n\n(e.g. for time units '1day for days', '1hour for hours', or '1min for minutes', or '1month for months' or '1year for year')</b>")
-        
-@Client.on_message(filters.command("remove_premium"))
-async def remove_premium_cmd_handler(client, message):
-    if PREMIUM_AND_REFERAL_MODE == False:
-        return 
-    user_id = message.from_user.id
-    if user_id not in ADMINS:
-        await message.delete()
-        return
-    if len(message.command) == 2:
-        user_id = int(message.command[1])  # Convert the user_id to integer
-      #  time = message.command[2]
-        time = "1s"
-        seconds = await get_seconds(time)
-        if seconds > 0:
-            expiry_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-            user_data = {"id": user_id, "expiry_time": expiry_time}  # Using "id" instead of "user_id"
-            await db.update_user(user_data)  # Use the update_user method to update or insert user data
-            await message.reply_text("Premium access removed to the user.")
-            await client.send_message(
-                chat_id=user_id,
-                text="<b>premium removed by admins \n\n Contact Admin if this is mistake \n\n 👮 Admin : {} \n</b>".format(OWNER_LNK),                
-            )
-        else:
-            await message.reply_text("Invalid time format.'")
-    else:
-        await message.reply_text("Usage: /remove_premium user_id")
-        
-@Client.on_message(filters.command("plan"))
-async def plans_cmd_handler(client, message): 
-    if PREMIUM_AND_REFERAL_MODE == False:
-        return 
-    btn = [            
-        [InlineKeyboardButton("ꜱᴇɴᴅ ᴘᴀʏᴍᴇɴᴛ ʀᴇᴄᴇɪᴘᴛ 🧾", url=OWNER_LNK)],
-        [InlineKeyboardButton("⚠️ ᴄʟᴏsᴇ / ᴅᴇʟᴇᴛᴇ ⚠️", callback_data="close_data")]
-    ]
-    reply_markup = InlineKeyboardMarkup(btn)
-    await message.reply_photo(
-        photo=PAYMENT_QR,
-        caption=PAYMENT_TEXT,
-        reply_markup=reply_markup
-    )
-        
-@Client.on_message(filters.command("myplan"))
-async def check_plans_cmd(client, message):
-    if PREMIUM_AND_REFERAL_MODE == False:
-        return 
-    user_id  = message.from_user.id
-    if await db.has_premium_access(user_id):         
-        remaining_time = await db.check_remaining_uasge(user_id)             
-        expiry_time = remaining_time + datetime.datetime.now()
-        await message.reply_text(f"**Your plans details are :\n\nRemaining Time : {remaining_time}\n\nExpirytime : {expiry_time}**")
-    else:
-        btn = [ 
-            [InlineKeyboardButton("ɢᴇᴛ ғʀᴇᴇ ᴛʀᴀɪʟ ғᴏʀ 𝟻 ᴍɪɴᴜᴛᴇꜱ ☺️", callback_data="get_trail")],
-            [InlineKeyboardButton("ʙᴜʏ sᴜʙsᴄʀɪᴘᴛɪᴏɴ : ʀᴇᴍᴏᴠᴇ ᴀᴅs", callback_data="buy_premium")],
-            [InlineKeyboardButton("⚠️ ᴄʟᴏsᴇ / ᴅᴇʟᴇᴛᴇ ⚠️", callback_data="close_data")]
-        ]
-        reply_markup = InlineKeyboardMarkup(btn)
-        m=await message.reply_sticker("CAACAgIAAxkBAAIBTGVjQbHuhOiboQsDm35brLGyLQ28AAJ-GgACglXYSXgCrotQHjibHgQ")         
-        await message.reply_text(f"**😢 You Don't Have Any Premium Subscription.\n\n Check Out Our Premium /plan**",reply_markup=reply_markup)
-        await asyncio.sleep(2)
-        await m.delete()
-
-@Client.on_message(filters.command("totalrequests") & filters.private & filters.user(ADMINS))
-async def total_requests(client, message):
-    if join_db().isActive():
-        total = await join_db().get_all_users_count()
-        await message.reply_text(
-            text=f"Total Requests: {total}",
-            parse_mode=enums.ParseMode.MARKDOWN,
-            disable_web_page_preview=True
-        )
-
-@Client.on_message(filters.command("purgerequests") & filters.private & filters.user(ADMINS))
-async def purge_requests(client, message):   
-    if join_db().isActive():
-        await join_db().delete_all_users()
-        await message.reply_text(
-            text="Purged All Requests.",
-            parse_mode=enums.ParseMode.MARKDOWN,
-            disable_web_page_preview=True
-        )
-
