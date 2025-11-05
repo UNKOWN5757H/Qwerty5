@@ -1405,9 +1405,9 @@ async def advantage_spell_chok(client, name, msg, reply_msg, Qwerty_search):
         await reply_msg.edit_text("<b><i>I Am Trying To Find Your Movie With Your Wrong Spelling.</i></b>")
         
         movienamelist = [movie.get('title') for movie in movies if movie.get('title')]
-        for qwerty in movienamelist:
-            if mv_rqst.capitalize().startswith(qwerty[0]):
-                await auto_filter(client, qwerty, msg, reply_msg, Qwerty_search_new)
+        for Qwerty in movienamelist:
+            if mv_rqst.capitalize().startswith(Qwerty[0]):
+                await auto_filter(client, Qwerty, msg, reply_msg, Qwerty_search_new)
                 return # Found a match
         
         # If AI check fails, fall through to showing buttons
@@ -1600,5 +1600,6 @@ async def global_filters(client, message, text=False):
             return True # Global filter was found and handled
 
     return False # No global filter found
+
 
 
