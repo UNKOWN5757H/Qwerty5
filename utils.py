@@ -1,6 +1,3 @@
-# Don't Remove Credit @VJ_Bots
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
 
 import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client
 from info import *
@@ -736,4 +733,5 @@ async def get_seconds(time_string):
         return value * 86400 * 365
     else:
         return 0
+
 
